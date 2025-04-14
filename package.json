@@ -1,0 +1,31 @@
+{
+  "name": "web-scaping",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js",
+    "dev2": "nodemon bsescrape.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.8.4",
+    "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "moment-timezone": "^0.5.48",
+    "node-cron": "^3.0.3",
+    "nodemon": "^3.1.9",
+    "pg": "^8.14.1",
+    "playwright": "^1.51.1",
+    "puppeteer": "^24.5.0",
+    "puppeteer-core": "^24.5.0"
+  },
+  "devDependencies": {
+    "pm2": "^6.0.5"
+  }
+}
