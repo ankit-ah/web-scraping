@@ -7,13 +7,13 @@ const app = express();
 const db = require("./config/db");
 const pool = require("./config/db");
 
-const sgxScrape = require("./sgxscrape");
+const sgxScrape = require("./sgx-scrape");
 const scrapeDataForMultipleCompanies = require("./scrape");
-const scrapeDataForMultipleCompanies2  = require("./bsescrape");
+const scrapeDataForMultipleCompanies2  = require("./bse-scrape");
 
-const sgxAnalytics = require('./sgx_analytics');
-const growwAnalytics = require('./groww_analytics');
-const analyticsDataForMultipleCompanies = require("./bse_analytics");
+const sgxAnalytics = require('./sgx-analytics');
+const growwAnalytics = require('./groww-analytics');
+const analyticsDataForMultipleCompanies = require("./bse-analytics");
 
 app.use(express.json()); // Middleware to parse JSON requests
 app.use(cors()); // cors setup
