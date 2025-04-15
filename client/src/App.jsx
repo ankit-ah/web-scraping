@@ -18,6 +18,7 @@ function App() {
     const dateBreakdown = date.split('/')
     return `${dateBreakdown[2]}-${dateBreakdown[1]}-${dateBreakdown[0]}`
   }
+  
   const modifiedDate = formatDate(startDate.toLocaleDateString())
 
   useEffect(() => {
@@ -111,7 +112,7 @@ function App() {
               <th>ID</th>
               <th>Date</th>
               <th>Stock Name</th>
-              <th> 9:02 AM to 9:15 AM </th>
+              <th>9:02 AM to 9:15 AM</th>
               <th>9:15 AM to 9:30 AM</th>
               <th>9:02 AM to 9:30 AM</th>
               <th>9:30 AM to 10:00 AM</th>

@@ -1,7 +1,7 @@
 const { chromium } = require("playwright");
 const pool = require("./config/db");
-const cron = require('node-cron');
-// Utility functions for formatting date
+
+// Helper Function to get date in different format
 const { getDate, dateTransform } = require("./helpers/dateTransform");
 
 const baseUrl = `https://www.bseindia.com/stock-share-price/`;
@@ -24,20 +24,19 @@ const scrapeDataForCompany = async (stock, timestamp, browser) => {
       timeout: 1000 * 60 * 2,
     });
 
-    // wait to get page fully loaded page
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(500); // wait to get page fully loaded page
 
-    // Select element showing last trade value
+    // Select element having last trade value
     const lastTradeElement = await page.$("#idcrval");
     const last_trade = lastTradeElement ? await lastTradeElement.textContent() : "N/A";
 
-    // Select element showing stock change
+    // Select element having stock change value
     const changeElement = await page.$(".sensexbluetext.ng-binding");
     const change = changeElement ? await changeElement.textContent() : "N/A";
 
     console.log(stock.split("/")[0], " - last trade:", last_trade, " | change:", change.split(" ")[0]);
 
-     // Insert scraped data into database
+     // Query to insert scraped data into database
     const query = `INSERT INTO bse_scrape(last_trade, change, date, stock_name, timestamp) VALUES($1, $2, $3, $4, $5)`;
     await pool.query(query, [last_trade, change.split(" ")[0], date, stock.split("/")[0], timestamp]);
 
@@ -49,10 +48,10 @@ const scrapeDataForCompany = async (stock, timestamp, browser) => {
   }
 };
 
-// Function to scrape multiple companies in batches
+// Function to scrape multiple stocks in batches
 const scrapeDataForMultipleCompanies2 = async () => {
 
-  const timestamp = dateTransform(); // Generate timestamp for DB insertion
+  const timestamp = dateTransform(); // Generate timestamp in format (2025-04-15 10:50:00.004+05:30)
 
   const stocks = [
     { name: "tata-motors-ltd/tatamotors/500570/" },
@@ -93,4 +92,3 @@ const scrapeDataForMultipleCompanies2 = async () => {
 };
 
 module.exports = scrapeDataForMultipleCompanies2;
-// scrapeDataForMultipleCompanies2()

@@ -1,8 +1,5 @@
-
-// Package helps to scrape and parse the web data
-const { chromium } = require("playwright");
+const { chromium } = require("playwright"); // Package helps to scrape and parse the web data
 const pool = require("./config/db");
-
 
 // Function to scrape and store single stock data
 const scrapeDataForCompany = async (stock, timestamp) => {
@@ -12,7 +9,6 @@ const scrapeDataForCompany = async (stock, timestamp) => {
   const page = await browser.newPage();
 
   try {
-
     // Construct URL dynamically using stock name
     const url = `https://groww.in/stocks/${stock}`;
 
@@ -33,7 +29,7 @@ const scrapeDataForCompany = async (stock, timestamp) => {
       (element) => element.textContent
     );
 
-    //Change_in_per is in "-0.90 (0.03%)" formate -0.90 is change
+    //Change_in_per is in "-0.90 (0.03%)" format, extracting '-0.90' which is change
     let change = change_in_per.split(" ")[0];
 
     // Removing the + sign from positive number
@@ -50,9 +46,11 @@ const scrapeDataForCompany = async (stock, timestamp) => {
     console.log(`\t\t\t--- ${modified_stock_name} ---`);
     console.log(`last_trade: ${last_trade[1]}\t\tchange: ${change}\t\tchange_in_per: ${perc}`);
 
+    // Query to check table exists or not
     const existsQuery = `SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = $1 AND TABLE_NAME = $2`
     const exists = await pool.query(existsQuery,["public", modified_stock_name]);
 
+    // If table not exists it will create the table
     if (exists.rowCount === 0) {
       const createQuery = `
         CREATE TABLE ${modified_stock_name} (
@@ -62,7 +60,6 @@ const scrapeDataForCompany = async (stock, timestamp) => {
         change_in_perc NUMERIC(5, 2),
         timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
         )`;
-
       await pool.query(createQuery);
     }
 
@@ -78,6 +75,7 @@ const scrapeDataForCompany = async (stock, timestamp) => {
   }
 };
 
+// Function to get date in format (2025-04-15 10:50:00.004+05:30)
 const dateTransform = () => {
   const date = new Date();
   const hrs = String(date.getHours()).padStart(2, "0");
@@ -90,6 +88,7 @@ const dateTransform = () => {
   return `${yyyy}-${mm}-${dd} ${hrs}:${min}:${sec}.${msec}+05:30`;
 };
 
+// Function to scrape data for multiple stock 
 const scrapeDataForMultipleCompanies = async () => {
 
   const stocks = [
@@ -113,7 +112,7 @@ const scrapeDataForMultipleCompanies = async () => {
 
   const timestamp = dateTransform();
 
-  // Creating an array of promises for scraping data for each stock
+  // Create an array of promises to run scraping tasks concurrently
   const scrapePromises = stocks.map(async (stock) => {
     return scrapeDataForCompany(stock, timestamp);
   });

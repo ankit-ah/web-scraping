@@ -1,20 +1,16 @@
-
-// Cheerio is used for parsing HTML and extracting data
-const cheerio = require("cheerio");
+const cheerio = require("cheerio"); // Cheerio is used for parsing HTML and extracting data
 const axios = require("axios");
-const pool = require("./config/db");
 
+const pool = require("./config/db");
 const url = "https://sgxnifty.org/";
 
 let result = {};
-
 
 // Function to scrape the website and extract data
 const scrapeWebsite = async () => {
 
   try {
-
-    // getting formatted date for timestamp creation
+    // Getting formatted date for timestamp creation
     const timestamp = formateDate()
     const { data } = await axios.get(url);
 
@@ -77,6 +73,7 @@ const scrapeWebsite = async () => {
   }
 };
 
+// Function to crete date in this format ('2025-04-15 10:50:00.004+05:30')
 const formateDate = () => {
   const date = new Date()
   const yy = date.getFullYear()

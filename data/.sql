@@ -1,4 +1,4 @@
---Run the commands to create tables
+-- To create SGX table
 
 CREATE TABLE sgx_nifty (
     id SERIAL PRIMARY KEY,
@@ -10,6 +10,8 @@ CREATE TABLE sgx_nifty (
 	open VARCHAR(20),
     timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
+
+-- To create stocks table
 
 CREATE TABLE tata_motors_ltd (
     id SERIAL PRIMARY KEY,
@@ -139,6 +141,8 @@ CREATE TABLE adani_enterprises_ltd (
     timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+-- To create analytics table
+
 CREATE TABLE sgx_nifty_analytics (
     id SERIAL PRIMARY KEY,
     date DATE,
@@ -161,15 +165,6 @@ CREATE TABLE groww_analytics (
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 )
 
-CREATE TABLE bse_scrape (
-    id SERIAL PRIMARY KEY,
-    last_trade VARCHAR(20),
-    change VARCHAR(20),
-    date DATE,
-	stock_name VARCHAR(100),
-    timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TABLE bse_analytics (
     id SERIAL PRIMARY KEY,
     date DATE,
@@ -182,6 +177,18 @@ CREATE TABLE bse_analytics (
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 )
 
+-- To create BSE scrape table
+
+CREATE TABLE bse_scrape (
+    id SERIAL PRIMARY KEY,
+    last_trade VARCHAR(20),
+    change VARCHAR(20),
+    date DATE,
+	stock_name VARCHAR(100),
+    timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- To get table data in descending order
 
 SELECT * FROM adani_ports_and_special_economic_zone_ltd ORDER BY id DESC
 
@@ -217,6 +224,6 @@ SELECT * FROM jsw_steel_ltd ORDER BY id DESC
 
 SELECT * FROM adani_enterprises_ltd ORDER BY id DESC
 
-select * from groww_analytics
+select * from groww_analytics ORDER BY id DESC
 
-select * from sgx_nifty_analytics
+select * from sgx_nifty_analytics ORDER BY id DESC
