@@ -299,17 +299,19 @@ function App() {
             <div style={{marginRight:"10px"}}>
               <DatePicker
                 selected={startDate}
-                onChange={(date) => setStartDate(date)}
+                onChange={(date) =>{ setStartDate(date)}}
                 dateFormat='dd-MM-YYYY'
                 className="custom-datepicker"
+                maxDate={new Date()}
               />
             </div>
             <div>
               <DatePicker
                 selected={endDate}
-                onChange={(date) => setEndDate(date)}
+                onChange={(date) =>{ startDate<=date && setEndDate(date)}}
                 dateFormat='dd-MM-YYYY'
                 className="custom-datepicker"
+                maxDate={new Date()}
               />
             </div>
           </div>
