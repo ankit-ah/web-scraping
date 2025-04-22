@@ -88,7 +88,7 @@ cron.schedule("15 10 * * 1-5", async () => {
 app.post("/sgx",async(req,res)=>{
   try{
     const {startDate, endDate} = req.body
-    const result = await pool.query(`SELECT * FROM sgx_nifty_analytics WHERE date BETWEEN $1 AND $2`,[startDate,endDate])
+    const result = await pool.query(`SELECT * FROM sgx_nifty_analytics WHERE date BETWEEN $1 AND $2 ORDER BY date DESC`,[startDate,endDate])
     res.send(result.rows)
   } catch(err){
     console.error(err)
@@ -99,7 +99,7 @@ app.post("/sgx",async(req,res)=>{
 app.post("/bse-analytics",async(req,res)=>{
   try {
     const {startDate,endDate} = req.body
-    const result = await pool.query(`SELECT * FROM bse_analytics WHERE date BETWEEN $1 AND $2`,[startDate,endDate])
+    const result = await pool.query(`SELECT * FROM bse_analytics WHERE date BETWEEN $1 AND $2 ORDER BY date DESC`,[startDate,endDate])
     res.send(result.rows)
   } catch (err) {
     console.error(err)
@@ -112,7 +112,7 @@ app.post("/compare", async (req, res) => {
     const { startDate, endDate } = req.body;
 
     const sgxQuery = await pool.query(
-      `SELECT date, "8AM_to_9AM" FROM sgx_nifty_analytics WHERE date BETWEEN $1 AND $2`,
+      `SELECT date, "8AM_to_9AM" FROM sgx_nifty_analytics WHERE date BETWEEN $1 AND $2 ORDER BY date DESC`,
       [startDate, endDate]
     );
 
@@ -124,7 +124,7 @@ app.post("/compare", async (req, res) => {
     });
 
     const bseQuery = await pool.query(
-      `SELECT * FROM bse_analytics WHERE date BETWEEN $1 AND $2`,
+      `SELECT * FROM bse_analytics WHERE date BETWEEN $1 AND $2 ORDER BY date DESC`,
       [startDate, endDate]
     );
 
