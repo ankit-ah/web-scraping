@@ -9,14 +9,18 @@ const bse_analytics = async (stock_name) => {
         // Defining the time intervals for the specific times we want to track
         const time_for_9_02AM = `${date} 09:02`
         const time_for_9_15AM = `${date} 09:15`
+        const time_for_9_20AM = `${date} 09:20`
+        const time_for_9_25AM = `${date} 09:25`
         const time_for_9_30AM = `${date} 09:30`
         const time_for_10AM = `${date} 10:00`
-        // console.log(time_for_9_02AM,time_for_9_15AM,time_for_9_30AM,time_for_10AM)
+        console.log(time_for_9_02AM,time_for_9_15AM,time_for_9_30AM,time_for_10AM, time_for_9_20AM,time_for_9_25AM)
 
         // Querying the database for the stock's price at these specific times
         // converting timestamp to string for easier query
         const data_at_9_02AM = await pool.query(`SELECT last_trade FROM bse_scrape WHERE timestamp::text LIKE '${time_for_9_02AM}%' AND stock_name='${stock_name}'`)
         const data_at_9_15AM = await pool.query(`SELECT last_trade FROM bse_scrape WHERE timestamp::text LIKE '${time_for_9_15AM}%' AND stock_name='${stock_name}'`)
+        const data_at_9_20AM = await pool.query(`SELECT last_trade FROM bse_scrape WHERE timestamp::text LIKE '${time_for_9_20AM}%' AND stock_name='${stock_name}'`)
+        const data_at_9_25AM = await pool.query(`SELECT last_trade FROM bse_scrape WHERE timestamp::text LIKE '${time_for_9_25AM}%' AND stock_name='${stock_name}'`)
         const data_at_9_30AM = await pool.query(`SELECT last_trade FROM bse_scrape WHERE timestamp::text LIKE '${time_for_9_30AM}%' AND stock_name='${stock_name}'`)
         const data_at_10AM = await pool.query(`SELECT last_trade FROM bse_scrape WHERE timestamp::text LIKE '${time_for_10AM}%' AND stock_name='${stock_name}'`)
         // console.log(stock_name,"-", data_at_9_02AM.rows[0],data_at_9_15AM.rows[0],data_at_9_30AM.rows[0],data_at_10AM.rows[0])
@@ -24,12 +28,14 @@ const bse_analytics = async (stock_name) => {
         // Parsing the retrieved prices into float values, removing commas (if any)
         const price_at_9_02AM = parseFloat(data_at_9_02AM?.rows[0]?.last_trade.replace(/,/g, ''))
         const price_at_9_15AM = parseFloat(data_at_9_15AM?.rows[0]?.last_trade.replace(/,/g,''))
+        const price_at_9_20AM = parseFloat(data_at_9_20AM?.rows[0]?.last_trade.replace(/,/g,''))
+        const price_at_9_25AM = parseFloat(data_at_9_25AM?.rows[0]?.last_trade.replace(/,/g,''))
         const price_at_9_30AM = parseFloat(data_at_9_30AM?.rows[0]?.last_trade.replace(/,/g,''))
         const price_at_10AM = parseFloat(data_at_10AM?.rows[0]?.last_trade.replace(/,/g,''))
         // console.log(price_at_9_02AM,price_at_9_15AM,price_at_9_30AM,price_at_10AM)
 
         // If any price is NaN (not a valid number), we return early
-        if(price_at_9_02AM===NaN || price_at_9_15AM===NaN || price_at_9_30AM===NaN || price_at_10AM===NaN){
+        if(price_at_9_02AM===NaN || price_at_9_15AM===NaN || price_at_9_20AM===NaN || price_at_9_25AM===NaN || price_at_9_30AM===NaN || price_at_10AM===NaN){
             return 
         }
 
@@ -39,12 +45,15 @@ const bse_analytics = async (stock_name) => {
         const change_in_per_9_02AM_to_9_30AM = (((price_at_9_30AM-price_at_9_02AM)/price_at_9_02AM)*100).toFixed(2)
         const change_in_per_9_30AM_to_10AM = (((price_at_10AM-price_at_9_30AM)/price_at_9_30AM)*100).toFixed(2)
         const change_in_per_9_02AM_to_10AM = (((price_at_10AM-price_at_9_02AM)/price_at_9_02AM)*100).toFixed(2)
+        const change_in_per_9_15AM_to_9_20AM = (((price_at_9_20AM-price_at_9_15AM)/price_at_9_15AM)*100).toFixed(2)
+        const change_in_per_9_20AM_to_9_25AM = (((price_at_9_25AM-price_at_9_20AM)/price_at_9_20AM)*100).toFixed(2)
+        const change_in_per_9_25AM_to_9_30AM = (((price_at_9_30AM-price_at_9_25AM)/price_at_9_25AM)*100).toFixed(2)
         // console.log(change_in_per_9_02AM_to_9_15AM,change_in_per_9_15AM_to_9_30AM,change_in_per_9_02AM_to_9_30AM,change_in_per_9_30AM_to_10AM,change_in_per_9_02AM_to_10AM)
 
         // SQL query to insert the calculated analytics into the database
-        const query = `INSERT INTO bse_analytics(date, stock_name, interval_9_02am_to_9_15am, interval_9_15am_to_9_30am, interval_9_02am_to_9_30am, interval_9_30am_to_10am, interval_9_02am_to_10am)
-                       VALUES($1,$2,$3,$4,$5,$6,$7)`
-        await pool.query(query,[date,stock_name,change_in_per_9_02AM_to_9_15AM,change_in_per_9_15AM_to_9_30AM,change_in_per_9_02AM_to_9_30AM,change_in_per_9_30AM_to_10AM,change_in_per_9_02AM_to_10AM])
+        const query = `INSERT INTO bse_analytics(date, stock_name, interval_9_02am_to_9_15am, interval_9_15am_to_9_30am, interval_9_02am_to_9_30am, interval_9_30am_to_10am, interval_9_02am_to_10am, interval_9_15am_to_9_20am, interval_9_20am_to_9_25am, interval_9_25am_to_9_30am)
+                       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`
+        await pool.query(query,[date,stock_name,change_in_per_9_02AM_to_9_15AM,change_in_per_9_15AM_to_9_30AM,change_in_per_9_02AM_to_9_30AM,change_in_per_9_30AM_to_10AM,change_in_per_9_02AM_to_10AM,change_in_per_9_15AM_to_9_20AM,change_in_per_9_20AM_to_9_25AM,change_in_per_9_25AM_to_9_30AM])
 
     } catch (error) {
         console.log(error)

@@ -2,141 +2,330 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import "./App.css"
 
 function App() {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [sgxData, setSgxData] = useState([]);
+  const [sgxLoading, setSgxLoading] = useState(true);
+  const [sgxError, setSgxError] = useState(null);
 
-  const [data2, setData2] = useState([]);
-  const [loading2, setLoading2] = useState(true);
-  const [error2, setError2] = useState(null);
+  const [bseData, setBseData] = useState([]);
+  const [bseLoading, setBseLoading] = useState(true);
+  const [bseError, setBseError] = useState(null);
 
-  const [startDate, setStartDate] = useState(new Date())
+  const [comparisonData, setComparisonData] = useState([]);
+  const [comparisonLoading, setComparisonLoading] = useState(true);
+  const [comparisonError, setComparisonError] = useState(null);
+
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+
+  const [activeTab, setActiveTab] = useState("sgx");
 
   const formatDate = (date) => {
-    const dateBreakdown = date.split('/')
-    return `${dateBreakdown[2]}-${dateBreakdown[1]}-${dateBreakdown[0]}`
-  }
-  
-  const modifiedDate = formatDate(startDate.toLocaleDateString())
+    const [day, month, year] = date.split('/');
+    return `${year}-${month}-${day}`;
+  };
+
+  const modifiedStartDate = formatDate(startDate.toLocaleDateString());
+  const modifiedEndDate = formatDate(endDate.toLocaleDateString());
 
   useEffect(() => {
-    axios.post('http://localhost:5000/sgx',{date:modifiedDate}) 
+    axios.post('http://localhost:5000/sgx', { startDate: modifiedStartDate, endDate: modifiedEndDate })
       .then(response => {
-        setData(response.data); 
-        setLoading(false); 
+        setSgxData(response.data);
+        setSgxLoading(false);
       })
       .catch(err => {
-        setError(err);
-        setLoading(false);
+        setSgxError(err.message);
+        setSgxLoading(false);
       });
-  }, [modifiedDate]);
+  }, [modifiedStartDate, modifiedEndDate]);
 
   useEffect(() => {
-    axios.post('http://localhost:5000/bse_analytics',{date:modifiedDate})  
+    axios.post('http://localhost:5000/bse-analytics', { startDate: modifiedStartDate, endDate: modifiedEndDate })
       .then(response => {
-        setData2(response.data); 
-        setLoading2(false); 
+        setBseData(response.data);
+        setBseLoading(false);
       })
       .catch(err => {
-        setError2(err);
-        setLoading2(false);
+        setBseError(err.message);
+        setBseLoading(false);
       });
-  }, [modifiedDate]);
+  }, [modifiedStartDate, modifiedEndDate]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
-
-
-  if (loading2) {
-    return <div>Loading...</div>;
-  }
-
-  if (error2) {
-    return <div>{error2}</div>;
-  }
+  useEffect(() => {
+    axios.post('http://localhost:5000/compare', { startDate: modifiedStartDate, endDate: modifiedEndDate })
+      .then(response => {
+        setComparisonData(response.data);
+        setComparisonLoading(false);
+      })
+      .catch(err => {
+        setComparisonError(err.message);
+        setComparisonLoading(false);
+      });
+  }, [modifiedStartDate, modifiedEndDate]);
 
   const nameFormater = (name) => {
-    const narr = name.split("-")
-    const capitalizedNarr = narr.map((word)=>{
-      return word.charAt(0).toUpperCase() + word.slice(1)
-    })
-    return capitalizedNarr.join(" ")
-  }
+    const narr = name.split("-");
+    return narr.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+  };
 
-  return (
-    <div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
-    <div className="App" style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
-    <div>
-      <DatePicker selected={startDate} startDate={startDate} onChange={(date)=>setStartDate(date)}/>
-    </div>
+  const tableStyle = {
+    borderCollapse: "collapse",
+    width: "100%",
+    boxShadow: "0 0 8px rgba(0,0,0,0.1)"
+  };
+
+  const thStyle = {
+    backgroundColor: "#1e293b",
+    color: "#fff",
+    padding: "10px",
+    textAlign: "center",
+    fontSize: "13px"
+  };
+
+  const tdStyle = {
+    padding: "10px",
+    borderBottom: "1px solid #ddd",
+    color: 'black',
+    fontSize: "13px",
+    textAlign: "center"
+  };
+
+  const renderSGXTable = () => (
+    <>
       <h2>SGX Table</h2>
-      <table border="1" cellPadding="10">
+      <table style={tableStyle}>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Date</th>
-            <th>6AM to 7AM</th>
-            <th>7AM to 8AM</th>
-            <th>8AM to 9AM</th>
-            <th>6AM to 9AM</th>
-            {/* <th>Created At</th> */}
+            <th style={thStyle}>Id</th>
+            <th style={thStyle}>Date</th>
+            <th style={thStyle}>6:00AM to 7:00AM</th>
+            <th style={thStyle}>7:00AM to 8:00AM</th>
+            <th style={thStyle}>8:00AM to 9:00AM</th>
+            <th style={thStyle}>6:00AM to 9:00AM</th>
           </tr>
         </thead>
         <tbody>
-          {data.map((item,index) => (
-            <tr key={index+1}>
-              <td>{index+1}</td>
-              <td>{new Date(item.date).toLocaleDateString()}</td>
-              <td >{item["6AM_to_7AM"]}</td>
-              <td>{item["7AM_to_8AM"]}</td>
-              <td>{item["8AM_to_9AM"]}</td>
-              <td>{item["6AM_to_9AM"]}</td>
-              {/* <td>{new Date(item.created_at).toLocaleString()}</td> */}
+          {sgxData.map((item, index) => (
+            <tr key={index + 1} style={{ backgroundColor: index % 2 === 0 ? "#f8fafc" : "#fff" }}>
+              <td style={tdStyle}>{index + 1}</td>
+              <td style={tdStyle}>{new Date(item.date).toLocaleDateString()}</td>
+              <td style={tdStyle}>{formatCellValueBS(item["6AM_to_7AM"])}</td>
+              <td style={tdStyle}>{formatCellValueBS(item["7AM_to_8AM"])}</td>
+              <td style={tdStyle}>{formatCellValueBS(item["8AM_to_9AM"])}</td>
+              <td style={tdStyle}>{formatCellValueBS(item["6AM_to_9AM"])}</td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
-        <div className="App" style={{display:"flex",flexDirection:"column",alignItems:"center",margin:"20px"}}>
-        <h2>Analytics Table</h2>
-        <table border="1" cellPadding="5">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Date</th>
-              <th>Stock Name</th>
-              <th>9:02 AM to 9:15 AM</th>
-              <th>9:15 AM to 9:30 AM</th>
-              <th>9:02 AM to 9:30 AM</th>
-              <th>9:30 AM to 10:00 AM</th>
-              <th>9:02 AM to 10:00 AM</th>
-              <th>Status</th>
+    </>
+  );
+
+  const renderBSETable = () => (
+    <>
+      <h2>Analytics Table</h2>
+      <table style={tableStyle}>
+        <thead>
+          <tr>
+            <th style={thStyle}>Id</th>
+            <th style={thStyle}>Date</th>
+            <th style={thStyle}>Stock Name</th>
+            <th style={thStyle}>09:02 AM to 09:15 AM</th>
+            <th style={thStyle}>09:15 AM to 09:20 AM</th>
+            <th style={thStyle}>09:20 AM to 09:25 AM</th>
+            <th style={thStyle}>09:25 AM to 09:30 AM</th>
+            <th style={thStyle}>09:15 AM to 09:30 AM</th>
+            <th style={thStyle}>09:02 AM to 09:30 AM</th>
+            <th style={thStyle}>09:30 AM to 10:00 AM</th>
+            <th style={thStyle}>09:02 AM to 10:00 AM</th>
+          </tr>
+        </thead>
+        <tbody>
+          {bseData.map((item, index) => (
+            <tr key={index + 1} style={{ backgroundColor: index % 2 === 0 ? "#f8fafc" : "#fff" }}>
+              <td style={tdStyle}>{index + 1}</td>
+              <td style={tdStyle}>{new Date(item.date).toLocaleDateString()}</td>
+              <td style={tdStyle}>{nameFormater(item.stock_name)}</td>
+              <td style={tdStyle}>{formatCellValueBS(item.interval_9_02am_to_9_15am)}</td>
+              <td style={tdStyle}>{formatCellValueBS(item.interval_9_15am_to_9_20am)}</td>
+              <td style={tdStyle}>{formatCellValueBS(item.interval_9_20am_to_9_25am)}</td>
+              <td style={tdStyle}>{formatCellValueBS(item.interval_9_25am_to_9_30am)}</td>
+              <td style={tdStyle}>{formatCellValueBS(item.interval_9_15am_to_9_30am)}</td>
+              <td style={tdStyle}>{formatCellValueBS(item.interval_9_02am_to_9_30am)}</td>
+              <td style={tdStyle}>{formatCellValueBS(item.interval_9_30am_to_10am)}</td>
+              <td style={tdStyle}>{formatCellValueBS(item.interval_9_02am_to_10am)}</td>
             </tr>
-          </thead>
-          <tbody>
-            {data2.map((item,index) => (
-              <tr key={index+1}>
-                <td>{index+1}</td>
-                <td>{new Date(item.date).toLocaleDateString()}</td>
-                <td>{nameFormater(item.stock_name)}</td>
-                <td>{item.interval_9_02am_to_9_15am === "NaN" ? "N/A" : item.interval_9_02am_to_9_15am}</td>
-                <td>{item.interval_9_15am_to_9_30am === "NaN" ? "N/A" : item.interval_9_15am_to_9_30am}</td>
-                <td>{item.interval_9_02am_to_9_30am === "NaN" ? "N/A" : item.interval_9_02am_to_9_30am}</td>
-                <td>{item.interval_9_30am_to_10am === "NaN" ? "N/A" : item.interval_9_30am_to_10am}</td>
-                <td>{item.interval_9_02am_to_10am === "NaN" ? "N/A" : item.interval_9_02am_to_10am}</td>
-                {/* <td>{new Date(item.created_at).toLocaleString()}</td> */}
-                <td style={{color:item.interval_9_02am_to_10am>0? "green" : "red"}}>{item.interval_9_02am_to_10am > 0 ? "Profit": "Loss"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          ))}
+        </tbody>
+      </table>
+    </>
+  );
+
+  const formatCellValue = (value) => {
+    if (value === "+ve") {
+      return <span style={{ color: "green" }}>+ve</span>;
+    } else if (value === "-ve") {
+      return <span style={{ color: "red" }}>-ve</span>;
+    } else {
+      return <span style={{ color: "gray" }}>N/A</span>;
+    }
+  };
+
+  const formatCellValueBS = (value) => {
+    if (value > 0) {
+      return <span style={{ color: "green" }}>{value}</span>;
+    } else if (value < 0) {
+      return <span style={{ color: "red" }}>{value}</span>;
+    } else if (value == 0) {
+      return <span style={{ color: "black" }}>{value}</span>;
+    } else {
+      return <span style={{ color: "gray" }}>N/A</span>;
+    }
+  };
+
+  const renderComparisonTable = () => (
+    <>
+      <h2>Compare Table</h2>
+      <table style={tableStyle}>
+        <thead>
+          <tr>
+            <th style={thStyle}>Id</th>
+            <th style={thStyle}>Date</th>
+            <th style={thStyle}>Stock Name</th>
+            <th style={thStyle}>09:02 AM to 09:15 AM</th>
+            <th style={thStyle}>09:15 AM to 09:20 AM</th>
+            <th style={thStyle}>09:20 AM to 09:25 AM</th>
+            <th style={thStyle}>09:25 AM to 09:30 AM</th>
+            <th style={thStyle}>09:15 AM to 09:30 AM</th>
+            <th style={thStyle}>09:02 AM to 09:30 AM</th>
+            <th style={thStyle}>09:30 AM to 10:00 AM</th>
+            <th style={thStyle}>09:02 AM to 10:00 AM</th>
+          </tr>
+        </thead>
+        <tbody>
+          {comparisonData.map((item, index) => (
+            <tr key={index + 1} style={{ backgroundColor: index % 2 === 0 ? "#f8fafc" : "#fff" }}>
+              <td style={tdStyle}>{index + 1}</td>
+              <td style={tdStyle}>{new Date(item.date).toLocaleDateString()}</td>
+              <td style={tdStyle}>{nameFormater(item.stock_name)}</td>
+              <td style={tdStyle}>{formatCellValue(item.interval_9_02am_to_9_15am)}</td>
+              <td style={tdStyle}>{formatCellValue(item.interval_9_15am_to_9_20am)}</td>
+              <td style={tdStyle}>{formatCellValue(item.interval_9_20am_to_9_25am)}</td>
+              <td style={tdStyle}>{formatCellValue(item.interval_9_25am_to_9_30am)}</td>
+              <td style={tdStyle}>{formatCellValue(item.interval_9_15am_to_9_30am)}</td>
+              <td style={tdStyle}>{formatCellValue(item.interval_9_02am_to_9_30am)}</td>
+              <td style={tdStyle}>{formatCellValue(item.interval_9_30am_to_10am)}</td>
+              <td style={tdStyle}>{formatCellValue(item.interval_9_02am_to_10am)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  );
+
+  return (
+    <div style={{ display: "flex", fontFamily: "Arial, sans-serif" }}>
+      {/* Sidebar */}
+      <div style={{
+        width: "220px",
+        padding: "20px",
+        background: "#1e293b",
+        color: "#fff",
+        height: "100vh",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        overflowY: "auto",
+      }}>
+        <h2 style={{ color: "#fff", marginBottom: "30px" }}>Menu</h2>
+        <button
+          onClick={() => setActiveTab("sgx")}
+          style={{
+            marginBottom: "10px",
+            width: "100%",
+            padding: "10px",
+            background: activeTab === "sgx" ? "#0ea5e9" : "#334155",
+            color: "#fff",
+            border: "none",
+            cursor: "pointer"
+          }}
+        >
+          SGX
+        </button>
+        <button
+          onClick={() => setActiveTab("bse")}
+          style={{
+            width: "100%",
+            marginBottom: '10px',
+            padding: "10px",
+            background: activeTab === "bse" ? "#0ea5e9" : "#334155",
+            color: "#fff",
+            border: "none",
+            cursor: "pointer"
+          }}
+        >
+          Stocks
+        </button>
+        <button
+          onClick={() => setActiveTab("compare")}
+          style={{
+            width: "100%",
+            padding: "10px",
+            background: activeTab === "compare" ? "#0ea5e9" : "#334155",
+            color: "#fff",
+            border: "none",
+            cursor: "pointer"
+          }}
+        >
+          Price Comparison
+        </button>
+      </div>
+
+      {/* Main Content */}
+      <div style={{
+        flex: 1,
+        padding: "20px",
+        marginLeft: "270px",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+      }}>
+        <div style={{ marginBottom: "10px" }}>
+          <h3 style={{ marginBottom: "5px", marginTop: "1px" }}>Select Date Range</h3>
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            <div style={{marginRight:"10px"}}>
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                dateFormat='dd-MM-YYYY'
+                className="custom-datepicker"
+              />
+            </div>
+            <div>
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                dateFormat='dd-MM-YYYY'
+                className="custom-datepicker"
+              />
+            </div>
+          </div>
+        </div>
+
+        {sgxLoading || bseLoading || comparisonLoading ? (
+          <div>Loading...</div>
+        ) : sgxError || bseError || comparisonError ? (
+          <div style={{ color: "red" }}>Error: {sgxError || bseError}</div>
+        ) : (
+          <>
+            {activeTab === "sgx" && renderSGXTable()}
+            {activeTab === "bse" && renderBSETable()}
+            {activeTab === "compare" && renderComparisonTable()}
+          </>
+        )}
       </div>
     </div>
   );

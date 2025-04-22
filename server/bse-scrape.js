@@ -73,22 +73,23 @@ const scrapeDataForMultipleCompanies2 = async () => {
 
   // Launch browser (headless mode)
   const browser = await chromium.launch({ headless: true });
-  const batchSize = 8; // Number of stocks to scrape in one batch
+  const batchSize = 2; // Number of stocks to scrape in one batch
 
   // Loop through the stocks in batches
   for (let i = 0; i < stocks.length; i += batchSize) {
+
     const batch = stocks.slice(i, i + batchSize);
 
-    // Scrape each stock in the current batch
-    for (const stock of batch) {
-      await scrapeDataForCompany(stock.name, timestamp, browser);
-      await delay(1500); // Delay between each request to avoid detection
-    }
-
+      const scrapePromises = batch.map(async (stock) => {
+        return scrapeDataForCompany(stock.name, timestamp, browser);
+      });
+    
+      await Promise.all(scrapePromises);
+      await delay(1500)
     console.log(`Finished batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(stocks.length / batchSize)}`);
   }
-  console.log(new Date())
   await browser.close();
 };
 
 module.exports = scrapeDataForMultipleCompanies2;
+// scrapeDataForMultipleCompanies2()

@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server.js",
-    "dev2": "nodemon bsescrape.js"
+    "dev2": "nodemon bse-scrape.js"
   },
   "keywords": [],
   "author": "",
