@@ -312,6 +312,7 @@ function App() {
                 dateFormat='dd-MM-YYYY'
                 className="custom-datepicker"
                 maxDate={new Date()}
+                minDate={startDate}
               />
             </div>
           </div>
