@@ -99,7 +99,7 @@ app.post("/sgx",async(req,res)=>{
 app.post("/bse-analytics",async(req,res)=>{
   try {
     const {startDate,endDate} = req.body
-    const result = await pool.query(`SELECT * FROM bse_analytics WHERE date BETWEEN $1 AND $2 ORDER BY date DESC`,[startDate,endDate])
+    const result = await pool.query(`SELECT * FROM bse_analytics WHERE date BETWEEN $1 AND $2 ORDER BY date DESC, stock_name asc`,[startDate,endDate])
     res.send(result.rows)
   } catch (err) {
     console.error(err)
@@ -161,5 +161,5 @@ app.post("/compare", async (req, res) => {
 // Start the Express server and connect to the database
 app.listen(process.env.PORT, () => {
   db.connect()
-  console.log("Server is running on http://localhost:5000")
+  console.log(`Server is running on http://localhost:${process.env.PORT}`)
 });
