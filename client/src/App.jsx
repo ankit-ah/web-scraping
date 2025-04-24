@@ -108,7 +108,7 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          {sgxData.map((item, index) => (
+          {sgxData.length!==0 ? sgxData.map((item, index) => (
             <tr key={index + 1} style={{ backgroundColor: index % 2 === 0 ? "#f8fafc" : "#fff" }}>
               <td style={tdStyle}>{index + 1}</td>
               <td style={tdStyle}>{new Date(item.date).toLocaleDateString()}</td>
@@ -117,7 +117,13 @@ function App() {
               <td style={tdStyle}>{formatCellValueBS(item["8AM_to_9AM"])}</td>
               <td style={tdStyle}>{formatCellValueBS(item["6AM_to_9AM"])}</td>
             </tr>
-          ))}
+          )): (
+            <tr>
+              <td colSpan={6} style={{ textAlign: "center", padding: "10px", color: "white" }}>
+                No data available
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </>
@@ -143,7 +149,7 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          {bseData.map((item, index) => (
+          {bseData.length!==0 ? bseData.map((item, index) => (
             <tr key={index + 1} style={{ backgroundColor: index % 2 === 0 ? "#f8fafc" : "#fff" }}>
               <td style={tdStyle}>{index + 1}</td>
               <td style={tdStyle}>{new Date(item.date).toLocaleDateString()}</td>
@@ -157,7 +163,13 @@ function App() {
               <td style={tdStyle}>{formatCellValueBS(item.interval_9_30am_to_10am)}</td>
               <td style={tdStyle}>{formatCellValueBS(item.interval_9_02am_to_10am)}</td>
             </tr>
-          ))}
+          )):(
+            <tr>
+              <td colSpan={11} style={{ textAlign: "center", padding: "10px", color: "white" }}>
+                No data available
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </>
@@ -187,7 +199,7 @@ function App() {
 
   const renderComparisonTable = () => (
     <>
-      <h2>Compare Table</h2>
+      <h2>Comparison Table</h2>
       <table style={tableStyle}>
         <thead>
           <tr>
@@ -205,7 +217,7 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          {comparisonData.map((item, index) => (
+          {comparisonData.length !== 0 ? comparisonData.map((item, index) => (
             <tr key={index + 1} style={{ backgroundColor: index % 2 === 0 ? "#f8fafc" : "#fff" }}>
               <td style={tdStyle}>{index + 1}</td>
               <td style={tdStyle}>{new Date(item.date).toLocaleDateString()}</td>
@@ -219,7 +231,13 @@ function App() {
               <td style={tdStyle}>{formatCellValue(item.interval_9_30am_to_10am)}</td>
               <td style={tdStyle}>{formatCellValue(item.interval_9_02am_to_10am)}</td>
             </tr>
-          ))}
+          )) : (
+            <tr>
+              <td colSpan={11} style={{ textAlign: "center", padding: "10px", color: "white" }}>
+                No data available
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </>
@@ -239,7 +257,7 @@ function App() {
         left: 0,
         overflowY: "auto",
       }}>
-        <h2 style={{ color: "#fff", marginBottom: "30px" }}>Menu</h2>
+        <h2 style={{ color: "#fff", marginBottom: "25px",marginTop:"3px",marginLeft:"10px" }}>Menu</h2>
         <button
           onClick={() => setActiveTab("sgx")}
           style={{
@@ -296,10 +314,10 @@ function App() {
         <div style={{ marginBottom: "10px" }}>
           <h3 style={{ marginBottom: "5px", marginTop: "1px" }}>Select Date Range</h3>
           <div style={{ display: "flex", flexDirection: "row" }}>
-            <div style={{marginRight:"10px"}}>
+            <div style={{ marginRight: "10px" }}>
               <DatePicker
                 selected={startDate}
-                onChange={(date) =>{ setStartDate(date)}}
+                onChange={(date) => { setStartDate(date) }}
                 dateFormat='dd-MM-YYYY'
                 className="custom-datepicker"
                 maxDate={new Date()}
@@ -308,7 +326,7 @@ function App() {
             <div>
               <DatePicker
                 selected={endDate}
-                onChange={(date) =>{ startDate<=date && setEndDate(date)}}
+                onChange={(date) => { startDate <= date && setEndDate(date) }}
                 dateFormat='dd-MM-YYYY'
                 className="custom-datepicker"
                 maxDate={new Date()}
